@@ -27,6 +27,7 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/golang/glog"
+	"k8s.io/kops/upup/pkg/fi/cloudup/spotinst"
 )
 
 // KubeAPIServerOptionsBuilder adds options for the apiserver to the model
@@ -113,6 +114,8 @@ func (b *KubeAPIServerOptionsBuilder) BuildOptions(o interface{}) error {
 		c.CloudProvider = "external"
 	case kops.CloudProviderVSphere:
 		c.CloudProvider = "vsphere"
+	case kops.CloudProviderSpotinst:
+		c.CloudProvider = string(spotinst.GuessCloudFromClusterSpec(clusterSpec))
 	case kops.CloudProviderBareMetal:
 		// for baremetal, we don't specify a cloudprovider to apiserver
 	default:

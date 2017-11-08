@@ -27,6 +27,7 @@ import (
 	"k8s.io/kops/upup/pkg/fi/cloudup/baremetal"
 	"k8s.io/kops/upup/pkg/fi/cloudup/do"
 	"k8s.io/kops/upup/pkg/fi/cloudup/gce"
+	"k8s.io/kops/upup/pkg/fi/cloudup/spotinst"
 	"k8s.io/kops/upup/pkg/fi/cloudup/vsphere"
 	"k8s.io/kubernetes/federation/pkg/dnsprovider"
 	"k8s.io/kubernetes/federation/pkg/dnsprovider/providers/aws/route53"
@@ -114,6 +115,15 @@ func BuildCloud(cluster *kops.Cluster) (fi.Cloud, error) {
 			}
 
 			cloud = doCloud
+		}
+
+	case kops.CloudProviderSpotinst:
+		{
+			spotinstCloud, err := spotinst.NewCloud(cluster)
+			if err != nil {
+				return nil, err
+			}
+			cloud = spotinstCloud
 		}
 
 	case kops.CloudProviderBareMetal:

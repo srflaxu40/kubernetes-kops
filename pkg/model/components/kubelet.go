@@ -22,6 +22,7 @@ import (
 	"github.com/golang/glog"
 	"k8s.io/kops/pkg/apis/kops"
 	"k8s.io/kops/upup/pkg/fi"
+	"k8s.io/kops/upup/pkg/fi/cloudup/spotinst"
 	"k8s.io/kops/upup/pkg/fi/loader"
 )
 
@@ -170,6 +171,10 @@ func (b *KubeletOptionsBuilder) BuildOptions(o interface{}) error {
 	if cloudProvider == kops.CloudProviderVSphere {
 		clusterSpec.Kubelet.CloudProvider = "vsphere"
 		clusterSpec.Kubelet.HairpinMode = "promiscuous-bridge"
+	}
+
+	if cloudProvider == kops.CloudProviderSpotinst {
+		clusterSpec.Kubelet.CloudProvider = string(spotinst.GuessCloudFromClusterSpec(clusterSpec))
 	}
 
 	if clusterSpec.ExternalCloudControllerManager != nil {

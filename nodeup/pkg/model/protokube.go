@@ -35,6 +35,7 @@ import (
 	"github.com/blang/semver"
 	"github.com/golang/glog"
 	"k8s.io/kops/pkg/assets"
+	"k8s.io/kops/upup/pkg/fi/cloudup/spotinst"
 )
 
 // ProtokubeBuilder configures protokube
@@ -296,9 +297,12 @@ func (t *ProtokubeBuilder) ProtokubeFlags(k8sVersion semver.Version) (*Protokube
 
 	if t.Cluster.Spec.CloudProvider != "" {
 		f.Cloud = fi.String(t.Cluster.Spec.CloudProvider)
+		if kops.CloudProviderID(t.Cluster.Spec.CloudProvider) == kops.CloudProviderSpotinst {
+			f.Cloud = fi.String(string(spotinst.GuessCloudFromClusterSpec(&t.Cluster.Spec)))
+		}
 
 		if f.DNSProvider == nil {
-			switch kops.CloudProviderID(t.Cluster.Spec.CloudProvider) {
+			switch kops.CloudProviderID(fi.StringValue(f.Cloud)) {
 			case kops.CloudProviderAWS:
 				f.DNSProvider = fi.String("aws-route53")
 			case kops.CloudProviderGCE:
@@ -308,7 +312,7 @@ func (t *ProtokubeBuilder) ProtokubeFlags(k8sVersion semver.Version) (*Protokube
 				f.ClusterID = fi.String(t.Cluster.ObjectMeta.Name)
 				f.DNSServer = fi.String(*t.Cluster.Spec.CloudConfig.VSphereCoreDNSServer)
 			default:
-				glog.Warningf("Unknown cloudprovider %q; won't set DNS provider", t.Cluster.Spec.CloudProvider)
+				glog.Warningf("Unknown cloudprovider %q; won't set DNS provider", fi.StringValue(f.Cloud))
 			}
 		}
 	}

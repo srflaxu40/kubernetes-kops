@@ -26,6 +26,7 @@ import (
 	"k8s.io/kops/pkg/apis/kops/util"
 	"k8s.io/kops/upup/pkg/fi"
 	"k8s.io/kops/upup/pkg/fi/cloudup/gce"
+	"k8s.io/kops/upup/pkg/fi/cloudup/spotinst"
 	"k8s.io/kops/upup/pkg/fi/loader"
 )
 
@@ -109,6 +110,9 @@ func (b *KubeControllerManagerOptionsBuilder) BuildOptions(o interface{}) error 
 
 	case kops.CloudProviderVSphere:
 		kcm.CloudProvider = "vsphere"
+
+	case kops.CloudProviderSpotinst:
+		kcm.CloudProvider = string(spotinst.GuessCloudFromClusterSpec(clusterSpec))
 
 	case kops.CloudProviderBareMetal:
 		// No cloudprovider
